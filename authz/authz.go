@@ -77,7 +77,7 @@ m = (r.subOwner == p.subOwner || p.subOwner == "*") && \
 	// if len(Enforcer.GetPolicy()) == 0 {
 	if true {
 		ruleText := `
-p, built-in, *, *, *, *, *
+p, built-in, globleAdmin, *, *, *, *
 p, app, *, *, *, *, *
 p, *, *, POST, /api/signup, *, *
 p, *, *, GET, /api/get-email-and-phone, *, *
@@ -154,13 +154,29 @@ func IsAllowed(subOwner string, subName string, method string, urlPath string, o
 	}
 
 	user := object.GetUser(util.GetId(subOwner, subName))
-	if user != nil && user.IsAdmin && (subOwner == objOwner || (objOwner == "admin")) {
-		return true
+
+	if user != nil {
+		if user.IsAdmin && subOwner == objOwner {
+			return true
+		}
+		res, err := object.CheckPermission(user, objOwner, method)
+		if err != nil {
+			panic(err)
+		}
+		if res {
+			return true
+		}
+		if user.IsGlobalAdmin {
+			subName = "globleAdmin"
+		}
 	}
 
 	res, err := Enforcer.Enforce(subOwner, subName, method, urlPath, objOwner, objName)
 	if err != nil {
 		panic(err)
+	}
+	if res {
+		return true
 	}
 
 	return res
