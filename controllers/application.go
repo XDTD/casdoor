@@ -116,16 +116,16 @@ func (c *ApiController) GetOrganizationApplications() {
 		c.ResponseError(c.T("general:Missing parameter") + ": organization")
 		return
 	}
-
+	extendOrganizations := object.GetExtendedOrganizationsByPermission(userId, organization)
 	if limit == "" || page == "" {
 		var applications []*object.Application
-		applications = object.GetOrganizationApplications(owner, organization)
+		applications = object.GetApplicationsByOrganizations(owner, extendOrganizations)
 		c.Data["json"] = object.GetMaskedApplications(applications, userId)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetOrganizationApplicationCount(owner, organization, field, value)))
-		applications := object.GetMaskedApplications(object.GetPaginationOrganizationApplications(owner, organization, paginator.Offset(), limit, field, value, sortField, sortOrder), userId)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetApplicationsCountByOrganizations(owner, extendOrganizations, field, value)))
+		applications := object.GetMaskedApplications(object.GetPaginationApplicationsByOrganizations(owner, extendOrganizations, paginator.Offset(), limit, field, value, sortField, sortOrder), userId)
 		c.ResponseOk(applications, paginator.Nums())
 	}
 }

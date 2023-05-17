@@ -51,7 +51,7 @@ class SyncerListPage extends BaseListPage {
     SyncerBackend.addSyncer(newSyncer)
       .then((res) => {
         if (res.status === "ok") {
-          this.props.history.push({pathname: `/syncers/${newSyncer.name}`, mode: "add"});
+          this.props.history.push({pathname: `/syncers/${newSyncer.organization}/${newSyncer.name}`, mode: "add"});
           Setting.showMessage("success", i18next.t("general:Successfully added"));
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to add")}: ${res.msg}`);
@@ -232,7 +232,7 @@ class SyncerListPage extends BaseListPage {
           return (
             <div>
               <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.runSyncer(index)}>{i18next.t("general:Sync")}</Button>
-              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} onClick={() => this.props.history.push(`/syncers/${record.name}`)}>{i18next.t("general:Edit")}</Button>
+              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} onClick={() => this.props.history.push(`/syncers/${record.organization}/${record.name}`)}>{i18next.t("general:Edit")}</Button>
               <PopconfirmModal
                 title={i18next.t("general:Sure to delete") + `: ${record.name} ?`}
                 onConfirm={() => this.deleteSyncer(index)}

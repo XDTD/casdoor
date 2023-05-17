@@ -73,6 +73,16 @@ func GetSubscriptionCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetSubscriptionCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
+	count, err := session.Count(&Subscription{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetSubscriptions(owner string) []*Subscription {
 	subscriptions := []*Subscription{}
 	err := adapter.Engine.Desc("created_time").Find(&subscriptions, &Subscription{Owner: owner})
@@ -83,9 +93,30 @@ func GetSubscriptions(owner string) []*Subscription {
 	return subscriptions
 }
 
+func GetSubscriptionsByOwners(owners []string) []*Subscription {
+	subscriptions := []*Subscription{}
+	err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&subscriptions)
+	if err != nil {
+		panic(err)
+	}
+
+	return subscriptions
+}
+
 func GetPaginationSubscriptions(owner string, offset, limit int, field, value, sortField, sortOrder string) []*Subscription {
 	subscriptions := []*Subscription{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&subscriptions)
+	if err != nil {
+		panic(err)
+	}
+
+	return subscriptions
+}
+
+func GetPaginationedSubscriptionsByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*Subscription {
+	subscriptions := []*Subscription{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&subscriptions)
 	if err != nil {
 		panic(err)

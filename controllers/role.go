@@ -37,13 +37,15 @@ func (c *ApiController) GetRoles() {
 	value := c.Input().Get("value")
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
+	userId := c.GetSessionUsername()
+	extendOwners := object.GetExtendedOrganizationsByPermission(userId, owner)
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetRoles(owner)
+		c.Data["json"] = object.GetRolesByOwners(extendOwners)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetRoleCount(owner, field, value)))
-		roles := object.GetPaginationRoles(owner, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetRoleCountByOwners(extendOwners, field, value)))
+		roles := object.GetPaginationRolesByOwners(extendOwners, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		c.ResponseOk(roles, paginator.Nums())
 	}
 }

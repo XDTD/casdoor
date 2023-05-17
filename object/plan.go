@@ -47,12 +47,32 @@ func GetPlanCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetPlanCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
+	count, err := session.Count(&Plan{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetPlans(owner string) []*Plan {
 	plans := []*Plan{}
 	err := adapter.Engine.Desc("created_time").Find(&plans, &Plan{Owner: owner})
 	if err != nil {
 		panic(err)
 	}
+	return plans
+}
+
+func GetPlansByOwners(owners []string) []*Plan {
+	plans := []*Plan{}
+	err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&plans)
+	if err != nil {
+		panic(err)
+	}
+
 	return plans
 }
 
@@ -63,6 +83,17 @@ func GetPaginatedPlans(owner string, offset, limit int, field, value, sortField,
 	if err != nil {
 		panic(err)
 	}
+	return plans
+}
+
+func GetPaginationedPlansByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*Plan {
+	plans := []*Plan{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&plans)
+	if err != nil {
+		panic(err)
+	}
+
 	return plans
 }
 

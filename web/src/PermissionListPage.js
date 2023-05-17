@@ -345,7 +345,7 @@ class PermissionListPage extends BaseListPage {
     this.setState({loading: true});
 
     const getPermissions = Setting.isLocalAdminUser(this.props.account) ? PermissionBackend.getPermissions : PermissionBackend.getPermissionsBySubmitter;
-    getPermissions(this.props.account.owner, params.pagination.current, params.pagination.pageSize, field, value, sortField, sortOrder)
+    getPermissions(Setting.isAdminUser(this.props.account) ? "" : this.props.account.owner, params.pagination.current, params.pagination.pageSize, field, value, sortField, sortOrder)
       .then((res) => {
         if (res.status === "ok") {
           this.setState({

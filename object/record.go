@@ -118,6 +118,16 @@ func GetRecordCount(field, value string, filterRecord *Record) int {
 	return int(count)
 }
 
+func GetRecordCountByOrganizations(organizations []string, field, value string) int {
+	session := GetSessionByOrganizations("", organizations, -1, -1, field, value, "", "")
+	count, err := session.Count(&Record{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetRecords() []*Record {
 	records := []*Record{}
 	err := adapter.Engine.Desc("id").Find(&records)
@@ -132,6 +142,17 @@ func GetPaginationRecords(offset, limit int, field, value, sortField, sortOrder 
 	records := []*Record{}
 	session := GetSession("", offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&records, filterRecord)
+	if err != nil {
+		panic(err)
+	}
+
+	return records
+}
+
+func GetPaginationRecordsByOrganizations(organizations []string, offset, limit int, field, value, sortField, sortOrder string) []*Record {
+	records := []*Record{}
+	session := GetSessionByOrganizations("", organizations, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&records)
 	if err != nil {
 		panic(err)
 	}

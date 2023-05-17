@@ -13,10 +13,13 @@
 // limitations under the License.
 
 import React from "react";
-import {Button, Card, Col, Input, Row} from "antd";
+import {Button, Card, Col, Input, Row, Select} from "antd";
+import * as OrganizationBackend from "./backend/OrganizationBackend";
 import * as TokenBackend from "./backend/TokenBackend";
 import * as Setting from "./Setting";
 import i18next from "i18next";
+
+const {Option} = Select;
 
 class TokenEditPage extends React.Component {
   constructor(props) {
@@ -24,6 +27,8 @@ class TokenEditPage extends React.Component {
     this.state = {
       classes: props,
       tokenName: props.match.params.tokenName,
+      organizationName: props.match.params.organizationName,
+      organizations: [],
       token: null,
       mode: props.location.mode !== undefined ? props.location.mode : "edit",
     };
@@ -31,13 +36,23 @@ class TokenEditPage extends React.Component {
 
   UNSAFE_componentWillMount() {
     this.getToken();
+    this.getOrganizations();
   }
 
   getToken() {
-    TokenBackend.getToken("admin", this.state.tokenName)
+    TokenBackend.getToken("admin", this.state.organizationName, this.state.tokenName)
       .then((token) => {
         this.setState({
           token: token,
+        });
+      });
+  }
+
+  getOrganizations() {
+    OrganizationBackend.getOrganizations("admin")
+      .then((res) => {
+        this.setState({
+          organizations: (res.msg === undefined) ? res : [],
         });
       });
   }
@@ -94,9 +109,11 @@ class TokenEditPage extends React.Component {
             {i18next.t("general:Organization")}:
           </Col>
           <Col span={22} >
-            <Input disabled={!Setting.isAdminUser(this.props.account)} value={this.state.token.organization} onChange={e => {
-              this.updateTokenField("organization", e.target.value);
-            }} />
+            <Select virtual={false} style={{width: "100%"}} disabled={!Setting.isLocalAdminUser(this.props.account)} value={this.state.token.organization} onChange={(value => {this.updateTokenField("organization", value);})}>
+              {
+                this.state.organizations.map((organization, index) => <Option key={index} value={organization.name}>{organization.name}</Option>)
+              }
+            </Select>
           </Col>
         </Row>
         <Row style={{marginTop: "20px"}} >
@@ -176,7 +193,7 @@ class TokenEditPage extends React.Component {
           if (willExist) {
             this.props.history.push("/tokens");
           } else {
-            this.props.history.push(`/tokens/${this.state.token.name}`);
+            this.props.history.push(`/tokens/${this.state.token.organization}/${this.state.token.name}`);
           }
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to save")}: ${res.msg}`);

@@ -43,6 +43,16 @@ func GetRoleCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetRoleCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
+	count, err := session.Count(&Role{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetRoles(owner string) []*Role {
 	roles := []*Role{}
 	err := adapter.Engine.Desc("created_time").Find(&roles, &Role{Owner: owner})
@@ -53,9 +63,30 @@ func GetRoles(owner string) []*Role {
 	return roles
 }
 
+func GetRolesByOwners(owners []string) []*Role {
+	roles := []*Role{}
+	err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&roles)
+	if err != nil {
+		panic(err)
+	}
+
+	return roles
+}
+
 func GetPaginationRoles(owner string, offset, limit int, field, value, sortField, sortOrder string) []*Role {
 	roles := []*Role{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&roles)
+	if err != nil {
+		panic(err)
+	}
+
+	return roles
+}
+
+func GetPaginationRolesByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*Role {
+	roles := []*Role{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&roles)
 	if err != nil {
 		panic(err)

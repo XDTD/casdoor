@@ -32,13 +32,15 @@ func (c *ApiController) GetCasbinAdapters() {
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
 	organization := c.Input().Get("organization")
+	userId := c.GetSessionUsername()
+	extendOrganizations := object.GetExtendedOrganizationsByPermission(userId, organization)
 	if limit == "" || page == "" {
-		adapters := object.GetCasbinAdapters(owner, organization)
+		adapters := object.GetCasbinAdaptersByOrganizations(owner, extendOrganizations)
 		c.ResponseOk(adapters)
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetCasbinAdapterCount(owner, organization, field, value)))
-		adapters := object.GetPaginationCasbinAdapters(owner, organization, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetCasbinAdapterCountByOrganizations(owner, extendOrganizations, field, value)))
+		adapters := object.GetPaginationCasbinAdaptersByOrganizations(owner, extendOrganizations, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		c.ResponseOk(adapters, paginator.Nums())
 	}
 }

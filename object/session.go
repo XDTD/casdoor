@@ -51,6 +51,16 @@ func GetSessions(owner string) []*Session {
 	return sessions
 }
 
+func GetSessionsByOwners(owners []string) []*Session {
+	sessions := []*Session{}
+	err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&sessions)
+	if err != nil {
+		panic(err)
+	}
+
+	return sessions
+}
+
 func GetPaginationSessions(owner string, offset, limit int, field, value, sortField, sortOrder string) []*Session {
 	sessions := []*Session{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
@@ -62,8 +72,29 @@ func GetPaginationSessions(owner string, offset, limit int, field, value, sortFi
 	return sessions
 }
 
+func GetPaginationSessionsByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*Session {
+	sessions := []*Session{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&sessions)
+	if err != nil {
+		panic(err)
+	}
+
+	return sessions
+}
+
 func GetSessionCount(owner, field, value string) int {
 	session := GetSession(owner, -1, -1, field, value, "", "")
+	count, err := session.Count(&Session{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
+func GetSessionsCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
 	count, err := session.Count(&Session{})
 	if err != nil {
 		panic(err)

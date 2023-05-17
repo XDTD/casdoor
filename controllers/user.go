@@ -64,13 +64,15 @@ func (c *ApiController) GetUsers() {
 	value := c.Input().Get("value")
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
+	userId := c.GetSessionUsername()
+	extendOwners := object.GetExtendedOrganizationsByPermission(userId, owner)
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetMaskedUsers(object.GetUsers(owner))
+		c.Data["json"] = object.GetMaskedUsers(object.GetUsersByOwners(extendOwners))
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetUserCount(owner, field, value)))
-		users := object.GetPaginationUsers(owner, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetUserCountByOwners(extendOwners, field, value)))
+		users := object.GetPaginationUsersByOwners(extendOwners, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		users = object.GetMaskedUsers(users)
 		c.ResponseOk(users, paginator.Nums())
 	}

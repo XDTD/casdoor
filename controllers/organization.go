@@ -30,6 +30,10 @@ import (
 // @Success 200 {array} object.Organization The Response object
 // @router /get-organizations [get]
 func (c *ApiController) GetOrganizations() {
+	user, ok := c.RequireSignedInUser()
+	if !ok {
+		return
+	}
 	owner := c.Input().Get("owner")
 	limit := c.Input().Get("pageSize")
 	page := c.Input().Get("p")
@@ -37,15 +41,30 @@ func (c *ApiController) GetOrganizations() {
 	value := c.Input().Get("value")
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
-	if limit == "" || page == "" {
-		c.Data["json"] = object.GetMaskedOrganizations(object.GetOrganizations(owner))
-		c.ServeJSON()
+
+	if user.IsGlobalAdmin {
+		if limit == "" || page == "" {
+			c.Data["json"] = object.GetMaskedOrganizations(object.GetOrganizations(owner))
+			c.ServeJSON()
+		} else {
+			limit := util.ParseInt(limit)
+			paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetOrganizationCount(owner, field, value)))
+			organizations := object.GetMaskedOrganizations(object.GetPaginationOrganizations(owner, paginator.Offset(), limit, field, value, sortField, sortOrder))
+			c.ResponseOk(organizations, paginator.Nums())
+		}
 	} else {
-		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetOrganizationCount(owner, field, value)))
-		organizations := object.GetMaskedOrganizations(object.GetPaginationOrganizations(owner, paginator.Offset(), limit, field, value, sortField, sortOrder))
-		c.ResponseOk(organizations, paginator.Nums())
+		organizationNames := object.GetExtendedOrganizationsByPermission(user.GetId(), user.Owner)
+		if limit == "" || page == "" {
+			c.Data["json"] = object.GetMaskedOrganizations(object.GetOrganizationsByNames(organizationNames))
+			c.ServeJSON()
+		} else {
+			limit := util.ParseInt(limit)
+			paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetOrganizationCountByName(owner, organizationNames, field, value)))
+			organizations := object.GetMaskedOrganizations(object.GetPaginationOrganizationsByNames(owner, organizationNames, paginator.Offset(), limit, field, value, sortField, sortOrder))
+			c.ResponseOk(organizations, paginator.Nums())
+		}
 	}
+
 }
 
 // GetOrganization ...

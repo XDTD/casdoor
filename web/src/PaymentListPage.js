@@ -53,7 +53,7 @@ class PaymentListPage extends BaseListPage {
     PaymentBackend.addPayment(newPayment)
       .then((res) => {
         if (res.status === "ok") {
-          this.props.history.push({pathname: `/payments/${newPayment.name}`, mode: "add"});
+          this.props.history.push({pathname: `/payments/${newPayment.organization}/${newPayment.name}`, mode: "add"});
           Setting.showMessage("success", i18next.t("general:Successfully added"));
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to add")}: ${res.msg}`);
@@ -95,7 +95,7 @@ class PaymentListPage extends BaseListPage {
         ...this.getColumnSearchProps("name"),
         render: (text, record, index) => {
           return (
-            <Link to={`/payments/${text}`}>
+            <Link to={`/payments/${record.owner}/${text}`}>
               {text}
             </Link>
           );
@@ -221,8 +221,8 @@ class PaymentListPage extends BaseListPage {
         render: (text, record, index) => {
           return (
             <div>
-              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} onClick={() => this.props.history.push(`/payments/${record.name}/result`)}>{i18next.t("payment:Result")}</Button>
-              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/payments/${record.name}`)}>{i18next.t("general:Edit")}</Button>
+              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} onClick={() => this.props.history.push(`/payments/${record.owner}/${record.name}/result`)}>{i18next.t("payment:Result")}</Button>
+              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/payments/${record.owner}/${record.name}`)}>{i18next.t("general:Edit")}</Button>
               <PopconfirmModal
                 title={i18next.t("general:Sure to delete") + `: ${record.name} ?`}
                 onConfirm={() => this.deletePayment(index)}

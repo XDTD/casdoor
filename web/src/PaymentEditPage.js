@@ -40,7 +40,7 @@ class PaymentEditPage extends React.Component {
   }
 
   getPayment() {
-    PaymentBackend.getPayment(this.props.account.owner, this.state.paymentName)
+    PaymentBackend.getPayment(this.state.organizationName, this.state.paymentName)
       .then((payment) => {
         this.setState({
           payment: payment,
@@ -452,7 +452,7 @@ class PaymentEditPage extends React.Component {
           if (willExist) {
             this.props.history.push("/payments");
           } else {
-            this.props.history.push(`/payments/${this.state.payment.name}`);
+            this.props.history.push(`/payments/${this.state.payment.owner}/${this.state.payment.name}`);
           }
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to save")}: ${res.msg}`);

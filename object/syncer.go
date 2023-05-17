@@ -65,6 +65,16 @@ func GetSyncerCount(owner, organization, field, value string) int {
 	return int(count)
 }
 
+func GetSyncerCountByOrganizations(owner string, organizations []string, field, value string) int {
+	session := GetSessionByOrganizations(owner, organizations, -1, -1, field, value, "", "")
+	count, err := session.Count(&Syncer{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetSyncers(owner string) []*Syncer {
 	syncers := []*Syncer{}
 	err := adapter.Engine.Desc("created_time").Find(&syncers, &Syncer{Owner: owner})
@@ -75,9 +85,13 @@ func GetSyncers(owner string) []*Syncer {
 	return syncers
 }
 
-func GetOrganizationSyncers(owner, organization string) []*Syncer {
+func GetSyncersByOrganizations(owner string, organizations []string) []*Syncer {
 	syncers := []*Syncer{}
-	err := adapter.Engine.Desc("created_time").Find(&syncers, &Syncer{Owner: owner, Organization: organization})
+	query := adapter.Engine.Desc("created_time")
+	if len(organizations) > 0 {
+		query = query.In("organization", organizations)
+	}
+	err := query.Find(&syncers, &Syncer{Owner: owner})
 	if err != nil {
 		panic(err)
 	}
@@ -89,6 +103,17 @@ func GetPaginationSyncers(owner, organization string, offset, limit int, field, 
 	syncers := []*Syncer{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&syncers, &Syncer{Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return syncers
+}
+
+func GetPaginationSyncersByOrganizations(owner string, organizations []string, offset, limit int, field, value, sortField, sortOrder string) []*Syncer {
+	syncers := []*Syncer{}
+	session := GetSessionByOrganizations(owner, organizations, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&syncers)
 	if err != nil {
 		panic(err)
 	}

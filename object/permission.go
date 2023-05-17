@@ -73,6 +73,16 @@ func GetPermissionCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetPermissionCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
+	count, err := session.Count(&Permission{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetPermissions(owner string) []*Permission {
 	permissions := []*Permission{}
 	err := adapter.Engine.Desc("created_time").Find(&permissions, &Permission{Owner: owner})
@@ -83,9 +93,34 @@ func GetPermissions(owner string) []*Permission {
 	return permissions
 }
 
+func GetPermissionsByOwners(owners []string) []*Permission {
+	permissions := []*Permission{}
+	query := adapter.Engine.Desc("created_time")
+	if len(owners) > 0 {
+		query = query.In("owner", owners)
+	}
+	err := query.Find(&permissions)
+	if err != nil {
+		panic(err)
+	}
+
+	return permissions
+}
+
 func GetPaginationPermissions(owner string, offset, limit int, field, value, sortField, sortOrder string) []*Permission {
 	permissions := []*Permission{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&permissions)
+	if err != nil {
+		panic(err)
+	}
+
+	return permissions
+}
+
+func GetPaginationPermissionsByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*Permission {
+	permissions := []*Permission{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&permissions)
 	if err != nil {
 		panic(err)

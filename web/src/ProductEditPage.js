@@ -15,6 +15,7 @@
 import React from "react";
 import {Button, Card, Col, Input, InputNumber, Row, Select} from "antd";
 import * as ProductBackend from "./backend/ProductBackend";
+import * as OrganizationBackend from "./backend/OrganizationBackend";
 import * as Setting from "./Setting";
 import i18next from "i18next";
 import {LinkOutlined} from "@ant-design/icons";
@@ -40,13 +41,23 @@ class ProductEditPage extends React.Component {
   UNSAFE_componentWillMount() {
     this.getProduct();
     this.getPaymentProviders();
+    this.getOrganizations();
   }
 
   getProduct() {
-    ProductBackend.getProduct(this.props.account.owner, this.state.productName)
+    ProductBackend.getProduct(this.state.organizationName, this.state.productName)
       .then((product) => {
         this.setState({
           product: product,
+        });
+      });
+  }
+
+  getOrganizations() {
+    OrganizationBackend.getOrganizations(this.state.organizationName)
+      .then((res) => {
+        this.setState({
+          organizations: (res.msg === undefined) ? res : [],
         });
       });
   }
@@ -112,7 +123,7 @@ class ProductEditPage extends React.Component {
             {Setting.getLabel(i18next.t("general:Organization"), i18next.t("general:Organization - Tooltip"))} :
           </Col>
           <Col span={22} >
-            <Select virtual={false} style={{width: "100%"}} disabled={!Setting.isAdminUser(this.props.account)} value={this.state.product.owner} onChange={(value => {this.updateProductField("owner", value);})}>
+            <Select virtual={false} style={{width: "100%"}} disabled={!Setting.isLocalAdminUser(this.props.account)} value={this.state.product.owner} onChange={(value => {this.updateProductField("owner", value);})}>
               {
                 this.state.organizations.map((organization, index) => <Option key={index} value={organization.name}>{organization.name}</Option>)
               }
@@ -275,7 +286,7 @@ class ProductEditPage extends React.Component {
   }
 
   renderPreview() {
-    const buyUrl = `/products/${this.state.product.name}/buy`;
+    const buyUrl = `/products/${this.state.product.owner}/${this.state.product.name}/buy`;
     return (
       <Col span={22} style={{display: "flex", flexDirection: "column"}}>
         <a style={{marginBottom: "10px", display: "flex"}} target="_blank" rel="noreferrer" href={buyUrl}>
@@ -303,7 +314,7 @@ class ProductEditPage extends React.Component {
           if (willExist) {
             this.props.history.push("/products");
           } else {
-            this.props.history.push(`/products/${this.state.product.name}`);
+            this.props.history.push(`/products/${this.state.product.owner}/${this.state.product.name}`);
           }
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to save")}: ${res.msg}`);

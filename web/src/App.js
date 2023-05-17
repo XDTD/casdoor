@@ -572,18 +572,18 @@ class App extends Component {
         <Route exact path="/ldap/sync/:organizationName/:ldapId" render={(props) => this.renderLoginIfNotLoggedIn(<LdapSyncPage account={this.state.account} {...props} />)} />
         <Route exact path="/tokens" render={(props) => this.renderLoginIfNotLoggedIn(<TokenListPage account={this.state.account} {...props} />)} />
         <Route exact path="/sessions" render={(props) => this.renderLoginIfNotLoggedIn(<SessionListPage account={this.state.account} {...props} />)} />
-        <Route exact path="/tokens/:tokenName" render={(props) => this.renderLoginIfNotLoggedIn(<TokenEditPage account={this.state.account} {...props} />)} />
+        <Route exact path="/tokens/:organizationName/:tokenName" render={(props) => this.renderLoginIfNotLoggedIn(<TokenEditPage account={this.state.account} {...props} />)} />
         <Route exact path="/webhooks" render={(props) => this.renderLoginIfNotLoggedIn(<WebhookListPage account={this.state.account} {...props} />)} />
-        <Route exact path="/webhooks/:webhookName" render={(props) => this.renderLoginIfNotLoggedIn(<WebhookEditPage account={this.state.account} {...props} />)} />
+        <Route exact path="/webhooks/:organizationName/:webhookName" render={(props) => this.renderLoginIfNotLoggedIn(<WebhookEditPage account={this.state.account} {...props} />)} />
         <Route exact path="/syncers" render={(props) => this.renderLoginIfNotLoggedIn(<SyncerListPage account={this.state.account} {...props} />)} />
-        <Route exact path="/syncers/:syncerName" render={(props) => this.renderLoginIfNotLoggedIn(<SyncerEditPage account={this.state.account} {...props} />)} />
+        <Route exact path="/syncers/:organizationName/:syncerName" render={(props) => this.renderLoginIfNotLoggedIn(<SyncerEditPage account={this.state.account} {...props} />)} />
         <Route exact path="/certs" render={(props) => this.renderLoginIfNotLoggedIn(<CertListPage account={this.state.account} {...props} />)} />
         <Route exact path="/certs/:organizationName/:certName" render={(props) => this.renderLoginIfNotLoggedIn(<CertEditPage account={this.state.account} {...props} />)} />
         <Route exact path="/chats" render={(props) => this.renderLoginIfNotLoggedIn(<ChatListPage account={this.state.account} {...props} />)} />
-        <Route exact path="/chats/:chatName" render={(props) => this.renderLoginIfNotLoggedIn(<ChatEditPage account={this.state.account} {...props} />)} />
+        <Route exact path="/chats/:organizationName/:chatName" render={(props) => this.renderLoginIfNotLoggedIn(<ChatEditPage account={this.state.account} {...props} />)} />
         <Route exact path="/chat" render={(props) => this.renderLoginIfNotLoggedIn(<ChatPage account={this.state.account} {...props} />)} />
         <Route exact path="/messages" render={(props) => this.renderLoginIfNotLoggedIn(<MessageListPage account={this.state.account} {...props} />)} />
-        <Route exact path="/messages/:messageName" render={(props) => this.renderLoginIfNotLoggedIn(<MessageEditPage account={this.state.account} {...props} />)} />
+        <Route exact path="/messages/:organizationName/:messageName" render={(props) => this.renderLoginIfNotLoggedIn(<MessageEditPage account={this.state.account} {...props} />)} />
         <Route exact path="/plans" render={(props) => this.renderLoginIfNotLoggedIn(<PlanListPage account={this.state.account} {...props} />)} />
         <Route exact path="/plan/:organizationName/:planName" render={(props) => this.renderLoginIfNotLoggedIn(<PlanEditPage account={this.state.account} {...props} />)} />
         <Route exact path="/pricings" render={(props) => this.renderLoginIfNotLoggedIn(<PricingListPage account={this.state.account} {...props} />)} />
@@ -591,11 +591,11 @@ class App extends Component {
         <Route exact path="/subscriptions" render={(props) => this.renderLoginIfNotLoggedIn(<SubscriptionListPage account={this.state.account} {...props} />)} />
         <Route exact path="/subscription/:organizationName/:subscriptionName" render={(props) => this.renderLoginIfNotLoggedIn(<SubscriptionEditPage account={this.state.account} {...props} />)} />
         <Route exact path="/products" render={(props) => this.renderLoginIfNotLoggedIn(<ProductListPage account={this.state.account} {...props} />)} />
-        <Route exact path="/products/:productName" render={(props) => this.renderLoginIfNotLoggedIn(<ProductEditPage account={this.state.account} {...props} />)} />
-        <Route exact path="/products/:productName/buy" render={(props) => this.renderLoginIfNotLoggedIn(<ProductBuyPage account={this.state.account} {...props} />)} />
+        <Route exact path="/products/:organizationName/:productName" render={(props) => this.renderLoginIfNotLoggedIn(<ProductEditPage account={this.state.account} {...props} />)} />
+        <Route exact path="/products/:organizationName/:productName/buy" render={(props) => this.renderLoginIfNotLoggedIn(<ProductBuyPage account={this.state.account} {...props} />)} />
         <Route exact path="/payments" render={(props) => this.renderLoginIfNotLoggedIn(<PaymentListPage account={this.state.account} {...props} />)} />
-        <Route exact path="/payments/:paymentName" render={(props) => this.renderLoginIfNotLoggedIn(<PaymentEditPage account={this.state.account} {...props} />)} />
-        <Route exact path="/payments/:paymentName/result" render={(props) => this.renderLoginIfNotLoggedIn(<PaymentResultPage account={this.state.account} {...props} />)} />
+        <Route exact path="/payments/:organizationName/:paymentName" render={(props) => this.renderLoginIfNotLoggedIn(<PaymentEditPage account={this.state.account} {...props} />)} />
+        <Route exact path="/payments/:organizationName/:paymentName/result" render={(props) => this.renderLoginIfNotLoggedIn(<PaymentResultPage account={this.state.account} {...props} />)} />
         <Route exact path="/records" render={(props) => this.renderLoginIfNotLoggedIn(<RecordListPage account={this.state.account} {...props} />)} />
         <Route exact path="/mfa-authentication/setup" render={(props) => this.renderLoginIfNotLoggedIn(<MfaSetupPage account={this.state.account} {...props} />)} />
         <Route exact path="/.well-known/openid-configuration" render={(props) => <OdicDiscoveryPage />} />

@@ -24,8 +24,8 @@ export function getWebhooks(owner, organization, page = "", pageSize = "", field
   }).then(res => res.json());
 }
 
-export function getWebhook(owner, name) {
-  return fetch(`${Setting.ServerUrl}/api/get-webhook?id=${owner}/${encodeURIComponent(name)}`, {
+export function getWebhook(owner, organization, name) {
+  return fetch(`${Setting.ServerUrl}/api/get-webhook?id=${owner}/${encodeURIComponent(name)}&organization=${organization}`, {
     method: "GET",
     credentials: "include",
     headers: {

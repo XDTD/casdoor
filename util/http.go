@@ -1,4 +1,4 @@
-// Copyright 2021 The Casdoor Authors. All Rights Reserved.
+// Copyright 2023 The Casdoor Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Setting from "../Setting";
+package util
 
-export function getRecords(organization, page, pageSize, field = "", value = "", sortField = "", sortOrder = "") {
-  return fetch(`${Setting.ServerUrl}/api/get-records?organization=${organization}&pageSize=${pageSize}&p=${page}&field=${field}&value=${value}&sortField=${sortField}&sortOrder=${sortOrder}`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Accept-Language": Setting.getAcceptLanguage(),
-    },
-  }).then(res => res.json());
+import "strings"
+
+func HTTPMethodToRW(httpMethod string) string {
+	var method string
+	switch strings.ToUpper(httpMethod) {
+	case "GET", "HEAD":
+		method = "read"
+	case "POST", "DELETE", "PUT", "PATCH":
+		method = "write"
+	default:
+		method = "read"
+	}
+	return method
 }

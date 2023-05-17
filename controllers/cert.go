@@ -37,13 +37,16 @@ func (c *ApiController) GetCerts() {
 	value := c.Input().Get("value")
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
+	userId := c.GetSessionUsername()
+	extendOwners := object.GetExtendedOrganizationsByPermission(userId, owner)
+	extendOwners = append(extendOwners, "admin")
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetMaskedCerts(object.GetCerts(owner))
+		c.Data["json"] = object.GetMaskedCerts(object.GetCertsByOwners(extendOwners))
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetCertCount(owner, field, value)))
-		certs := object.GetMaskedCerts(object.GetPaginationCerts(owner, paginator.Offset(), limit, field, value, sortField, sortOrder))
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetCertCountByOwners(extendOwners, field, value)))
+		certs := object.GetMaskedCerts(object.GetPaginationCertsByOwners(extendOwners, paginator.Offset(), limit, field, value, sortField, sortOrder))
 		c.ResponseOk(certs, paginator.Nums())
 	}
 }

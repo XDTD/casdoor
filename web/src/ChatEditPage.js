@@ -26,6 +26,7 @@ class ChatEditPage extends React.Component {
     this.state = {
       classes: props,
       chatName: props.match.params.chatName,
+      organizationName: props.match.params.organizationName,
       chat: null,
       organizations: [],
       users: [],
@@ -39,7 +40,7 @@ class ChatEditPage extends React.Component {
   }
 
   getChat() {
-    ChatBackend.getChat("admin", this.state.chatName)
+    ChatBackend.getChat("admin", this.state.organizationName, this.state.chatName)
       .then((chat) => {
         this.setState({
           chat: chat,
@@ -99,7 +100,7 @@ class ChatEditPage extends React.Component {
             {Setting.getLabel(i18next.t("general:Organization"), i18next.t("general:Organization - Tooltip"))} :
           </Col>
           <Col span={22} >
-            <Select virtual={false} disabled={!Setting.isAdminUser(this.props.account)} style={{width: "100%"}} value={this.state.chat.organization} onChange={(value => {this.updateChatField("organization", value);})}
+            <Select virtual={false} disabled={!Setting.isLocalAdminUser(this.props.account)} style={{width: "100%"}} value={this.state.chat.organization} onChange={(value => {this.updateChatField("organization", value);})}
               options={this.state.organizations.map((organization) => Setting.getOption(organization.name, organization.name))
               } />
           </Col>
@@ -198,7 +199,7 @@ class ChatEditPage extends React.Component {
           if (willExist) {
             this.props.history.push("/chats");
           } else {
-            this.props.history.push(`/chats/${this.state.chat.name}`);
+            this.props.history.push(`/chats/${this.state.chat.organization}/${this.state.chat.name}`);
           }
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to save")}: ${res.msg}`);

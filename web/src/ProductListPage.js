@@ -47,7 +47,7 @@ class ProductListPage extends BaseListPage {
     ProductBackend.addProduct(newProduct)
       .then((res) => {
         if (res.status === "ok") {
-          this.props.history.push({pathname: `/products/${newProduct.name}`, mode: "add"});
+          this.props.history.push({pathname: `/products/${newProduct.owner}/${newProduct.name}`, mode: "add"});
           Setting.showMessage("success", i18next.t("general:Successfully added"));
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to add")}: ${res.msg}`);
@@ -246,8 +246,8 @@ class ProductListPage extends BaseListPage {
         render: (text, record, index) => {
           return (
             <div>
-              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} onClick={() => this.props.history.push(`/products/${record.name}/buy`)}>{i18next.t("product:Buy")}</Button>
-              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/products/${record.name}`)}>{i18next.t("general:Edit")}</Button>
+              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} onClick={() => this.props.history.push(`/products/${record.owner}/${record.name}/buy`)}>{i18next.t("product:Buy")}</Button>
+              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/products/${record.owner}/${record.name}`)}>{i18next.t("general:Edit")}</Button>
               <PopconfirmModal
                 title={i18next.t("general:Sure to delete") + `: ${record.name} ?`}
                 onConfirm={() => this.deleteProduct(index)}

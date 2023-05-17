@@ -52,12 +52,32 @@ func GetPricingCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetPricingCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
+	count, err := session.Count(&Pricing{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetPricings(owner string) []*Pricing {
 	pricings := []*Pricing{}
 	err := adapter.Engine.Desc("created_time").Find(&pricings, &Pricing{Owner: owner})
 	if err != nil {
 		panic(err)
 	}
+	return pricings
+}
+
+func GetPricingsByOwners(owners []string) []*Pricing {
+	pricings := []*Pricing{}
+	err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&pricings)
+	if err != nil {
+		panic(err)
+	}
+
 	return pricings
 }
 
@@ -68,6 +88,17 @@ func GetPaginatedPricings(owner string, offset, limit int, field, value, sortFie
 	if err != nil {
 		panic(err)
 	}
+	return pricings
+}
+
+func GetPaginationedPricingsByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*Pricing {
+	pricings := []*Pricing{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&pricings)
+	if err != nil {
+		panic(err)
+	}
+
 	return pricings
 }
 

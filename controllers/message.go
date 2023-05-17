@@ -42,10 +42,12 @@ func (c *ApiController) GetMessages() {
 	sortOrder := c.Input().Get("sortOrder")
 	chat := c.Input().Get("chat")
 	organization := c.Input().Get("organization")
+	userId := c.GetSessionUsername()
+	extendOrganizations := object.GetExtendedOrganizationsByPermission(userId, organization)
 	if limit == "" || page == "" {
 		var messages []*object.Message
 		if chat == "" {
-			messages = object.GetMessages(owner)
+			messages = object.GetMessagesByOrganizations(owner, extendOrganizations)
 		} else {
 			messages = object.GetChatMessages(chat)
 		}
@@ -54,8 +56,8 @@ func (c *ApiController) GetMessages() {
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetMessageCount(owner, organization, field, value)))
-		messages := object.GetMaskedMessages(object.GetPaginationMessages(owner, organization, paginator.Offset(), limit, field, value, sortField, sortOrder))
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetMessageCountByOrganizations(owner, extendOrganizations, field, value)))
+		messages := object.GetMaskedMessages(object.GetPaginationMessagesByOrganizations(owner, extendOrganizations, paginator.Offset(), limit, field, value, sortField, sortOrder))
 		c.ResponseOk(messages, paginator.Nums())
 	}
 }

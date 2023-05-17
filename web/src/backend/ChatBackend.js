@@ -14,8 +14,8 @@
 
 import * as Setting from "../Setting";
 
-export function getChats(owner, page = "", pageSize = "", field = "", value = "", sortField = "", sortOrder = "") {
-  return fetch(`${Setting.ServerUrl}/api/get-chats?owner=${owner}&p=${page}&pageSize=${pageSize}&field=${field}&value=${value}&sortField=${sortField}&sortOrder=${sortOrder}`, {
+export function getChats(owner, organization, page = "", pageSize = "", field = "", value = "", sortField = "", sortOrder = "") {
+  return fetch(`${Setting.ServerUrl}/api/get-chats?owner=${owner}&organization=${organization}&p=${page}&pageSize=${pageSize}&field=${field}&value=${value}&sortField=${sortField}&sortOrder=${sortOrder}`, {
     method: "GET",
     credentials: "include",
     headers: {
@@ -24,8 +24,8 @@ export function getChats(owner, page = "", pageSize = "", field = "", value = ""
   }).then(res => res.json());
 }
 
-export function getChat(owner, name) {
-  return fetch(`${Setting.ServerUrl}/api/get-chat?id=${owner}/${encodeURIComponent(name)}`, {
+export function getChat(owner, organization, name) {
+  return fetch(`${Setting.ServerUrl}/api/get-chat?id=${owner}/${encodeURIComponent(name)}&organization=${organization}`, {
     method: "GET",
     credentials: "include",
     headers: {

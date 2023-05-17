@@ -38,13 +38,15 @@ func (c *ApiController) GetPayments() {
 	value := c.Input().Get("value")
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
+	userId := c.GetSessionUsername()
+	extendOwners := object.GetExtendedOrganizationsByPermission(userId, owner)
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetPayments(owner)
+		c.Data["json"] = object.GetPaymentsByOwners(extendOwners)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetPaymentCount(owner, field, value)))
-		payments := object.GetPaginationPayments(owner, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetPaymentCountByOwners(extendOwners, field, value)))
+		payments := object.GetPaginationPaymentsByOwners(extendOwners, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		c.ResponseOk(payments, paginator.Nums())
 	}
 }

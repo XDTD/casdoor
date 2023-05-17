@@ -42,6 +42,16 @@ func GetModelCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetModelCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
+	count, err := session.Count(&Model{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetModels(owner string) []*Model {
 	models := []*Model{}
 	err := adapter.Engine.Desc("created_time").Find(&models, &Model{Owner: owner})
@@ -52,9 +62,30 @@ func GetModels(owner string) []*Model {
 	return models
 }
 
+func GetModelsByOwners(owners []string) []*Model {
+	models := []*Model{}
+	err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&models)
+	if err != nil {
+		panic(err)
+	}
+
+	return models
+}
+
 func GetPaginationModels(owner string, offset, limit int, field, value, sortField, sortOrder string) []*Model {
 	models := []*Model{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&models)
+	if err != nil {
+		panic(err)
+	}
+
+	return models
+}
+
+func GetPaginationModelsByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*Model {
+	models := []*Model{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&models)
 	if err != nil {
 		panic(err)

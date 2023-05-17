@@ -160,7 +160,7 @@ class PermissionEditPage extends React.Component {
             {Setting.getLabel(i18next.t("general:Organization"), i18next.t("general:Organization - Tooltip"))} :
           </Col>
           <Col span={22} >
-            <Select virtual={false} style={{width: "100%"}} disabled={!Setting.isAdminUser(this.props.account)} value={this.state.permission.owner} onChange={(owner => {
+            <Select virtual={false} style={{width: "100%"}} disabled={!Setting.isLocalAdminUser(this.props.account)} value={this.state.permission.owner} onChange={(owner => {
               this.updatePermissionField("owner", owner);
               this.getUsers(owner);
               this.getRoles(owner);

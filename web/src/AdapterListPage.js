@@ -204,7 +204,7 @@ class AdapterListPage extends BaseListPage {
         render: (text, record, index) => {
           return (
             <div>
-              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/adapters/${record.owner}/${record.name}`)}>{i18next.t("general:Edit")}</Button>
+              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/adapters/${record.organization}/${record.name}`)}>{i18next.t("general:Edit")}</Button>
               <PopconfirmModal
                 title={i18next.t("general:Sure to delete") + `: ${record.name} ?`}
                 onConfirm={() => this.deleteAdapter(index)}

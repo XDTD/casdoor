@@ -52,8 +52,18 @@ func GetMaskedChats(chats []*Chat) []*Chat {
 	return chats
 }
 
-func GetChatCount(owner, field, value string) int {
+func GetChatCount(owner, organization, field, value string) int {
 	session := GetSession(owner, -1, -1, field, value, "", "")
+	count, err := session.Count(&Chat{Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
+func GetChatCountByOrganizations(owner string, organizations []string, field, value string) int {
+	session := GetSessionByOrganizations(owner, organizations, -1, -1, field, value, "", "")
 	count, err := session.Count(&Chat{})
 	if err != nil {
 		panic(err)
@@ -62,9 +72,9 @@ func GetChatCount(owner, field, value string) int {
 	return int(count)
 }
 
-func GetChats(owner string) []*Chat {
+func GetChats(owner, organization string) []*Chat {
 	chats := []*Chat{}
-	err := adapter.Engine.Desc("created_time").Find(&chats, &Chat{Owner: owner})
+	err := adapter.Engine.Desc("created_time").Find(&chats, &Chat{Owner: owner, Organization: organization})
 	if err != nil {
 		panic(err)
 	}
@@ -72,9 +82,34 @@ func GetChats(owner string) []*Chat {
 	return chats
 }
 
-func GetPaginationChats(owner string, offset, limit int, field, value, sortField, sortOrder string) []*Chat {
+func GetChatsByOrganizations(owner string, organizations []string) []*Chat {
 	chats := []*Chat{}
+	query := adapter.Engine.Desc("created_time")
+	if len(organizations) > 0 {
+		query = query.In("organization", organizations)
+	}
+	err := query.Find(&chats, &Chat{Owner: owner})
+	if err != nil {
+		panic(err)
+	}
+	return chats
+}
+
+func GetPaginationChats(owner, organization string, offset, limit int, field, value, sortField, sortOrder string) []*Chat {
+	chats := []*Chat{}
+
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&chats, &Chat{Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return chats
+}
+
+func GetPaginationChatsByOrganizations(owner string, organizations []string, offset, limit int, field, value, sortField, sortOrder string) []*Chat {
+	chats := []*Chat{}
+	session := GetSessionByOrganizations(owner, organizations, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&chats)
 	if err != nil {
 		panic(err)

@@ -52,9 +52,33 @@ func GetWebhookCount(owner, organization, field, value string) int {
 	return int(count)
 }
 
+func GetWebhookCountByOrganizations(owner string, organizations []string, field, value string) int {
+	session := GetSessionByOrganizations(owner, organizations, -1, -1, field, value, "", "")
+	count, err := session.Count(&Webhook{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetWebhooks(owner string, organization string) []*Webhook {
 	webhooks := []*Webhook{}
 	err := adapter.Engine.Desc("created_time").Find(&webhooks, &Webhook{Owner: owner, Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return webhooks
+}
+
+func GetWebhooksByOrganizations(owner string, organizations []string) []*Webhook {
+	webhooks := []*Webhook{}
+	query := adapter.Engine.Desc("created_time")
+	if len(organizations) > 0 {
+		query = query.In("organization", organizations)
+	}
+	err := query.Find(&webhooks, &Webhook{Owner: owner})
 	if err != nil {
 		panic(err)
 	}
@@ -66,6 +90,17 @@ func GetPaginationWebhooks(owner, organization string, offset, limit int, field,
 	webhooks := []*Webhook{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&webhooks, &Webhook{Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return webhooks
+}
+
+func GetPaginationWebhooksByOrganizations(owner string, organizations []string, offset, limit int, field, value, sortField, sortOrder string) []*Webhook {
+	webhooks := []*Webhook{}
+	session := GetSessionByOrganizations(owner, organizations, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&webhooks)
 	if err != nil {
 		panic(err)
 	}

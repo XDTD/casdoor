@@ -209,7 +209,7 @@ class RecordListPage extends BaseListPage {
       value = params.method;
     }
     this.setState({loading: true});
-    RecordBackend.getRecords(params.pagination.current, params.pagination.pageSize, field, value, sortField, sortOrder)
+    RecordBackend.getRecords(Setting.isAdminUser(this.props.account) ? "" : this.props.account.owner, params.pagination.current, params.pagination.pageSize, field, value, sortField, sortOrder)
       .then((res) => {
         if (res.status === "ok") {
           this.setState({

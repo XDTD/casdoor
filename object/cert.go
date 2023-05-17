@@ -64,9 +64,29 @@ func GetCertCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetCertCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
+	count, err := session.Count(&Cert{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetCerts(owner string) []*Cert {
 	certs := []*Cert{}
 	err := adapter.Engine.Where("owner = ? or owner = ? ", "admin", owner).Desc("created_time").Find(&certs, &Cert{})
+	if err != nil {
+		panic(err)
+	}
+
+	return certs
+}
+
+func GetCertsByOwners(owners []string) []*Cert {
+	certs := []*Cert{}
+	err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&certs)
 	if err != nil {
 		panic(err)
 	}
@@ -78,6 +98,17 @@ func GetPaginationCerts(owner string, offset, limit int, field, value, sortField
 	certs := []*Cert{}
 	session := GetSession("", offset, limit, field, value, sortField, sortOrder)
 	err := session.Where("owner = ? or owner = ? ", "admin", owner).Find(&certs)
+	if err != nil {
+		panic(err)
+	}
+
+	return certs
+}
+
+func GetPaginationCertsByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*Cert {
+	certs := []*Cert{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&certs)
 	if err != nil {
 		panic(err)
 	}

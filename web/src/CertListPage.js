@@ -187,11 +187,18 @@ class CertListPage extends BaseListPage {
         width: "170px",
         fixed: (Setting.isMobile()) ? "false" : "right",
         render: (text, record, index) => {
+          let disabled = false;
+          if (record.owner === "admin" && !Setting.isAdminUser(this.props.account)) {
+            disabled = true;
+          }
+          if (record.owner !== this.props.account.owner && !Setting.isLocalAdminUser(this.props.account)) {
+            disabled = true;
+          }
           return (
             <div>
-              <Button disabled={!Setting.isAdminUser(this.props.account) && (record.owner !== this.props.account.owner)} style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/certs/${record.owner}/${record.name}`)}>{i18next.t("general:Edit")}</Button>
+              <Button disabled={disabled} style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/certs/${record.owner}/${record.name}`)}>{i18next.t("general:Edit")}</Button>
               <PopconfirmModal
-                disabled={!Setting.isAdminUser(this.props.account) && (record.owner !== this.props.account.owner)}
+                disabled={disabled}
                 title={i18next.t("general:Sure to delete") + `: ${record.name} ?`}
                 onConfirm={() => this.deleteCert(index)}
               >

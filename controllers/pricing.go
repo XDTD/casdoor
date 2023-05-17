@@ -37,13 +37,15 @@ func (c *ApiController) GetPricings() {
 	value := c.Input().Get("value")
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
+	userId := c.GetSessionUsername()
+	extendOwners := object.GetExtendedOrganizationsByPermission(userId, owner)
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetPricings(owner)
+		c.Data["json"] = object.GetPricingsByOwners(extendOwners)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetPricingCount(owner, field, value)))
-		pricing := object.GetPaginatedPricings(owner, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetPricingCountByOwners(extendOwners, field, value)))
+		pricing := object.GetPaginationedPricingsByOwners(extendOwners, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		c.ResponseOk(pricing, paginator.Nums())
 	}
 }

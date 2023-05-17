@@ -24,8 +24,8 @@ export function getAdapters(owner, organization, page = "", pageSize = "", field
   }).then(res => res.json());
 }
 
-export function getAdapter(owner, name) {
-  return fetch(`${Setting.ServerUrl}/api/get-adapter?id=${owner}/${encodeURIComponent(name)}`, {
+export function getAdapter(owner, organization, name) {
+  return fetch(`${Setting.ServerUrl}/api/get-adapter?id=${owner}/${encodeURIComponent(name)}&organization=${organization}`, {
     method: "GET",
     credentials: "include",
     headers: {
@@ -81,11 +81,17 @@ export function UpdatePolicy(owner, name, policy) {
   }).then(res => res.json());
 }
 
-export function AddPolicy(owner, name, policy) {
+export function AddPolicy(owner, organization, name, policy) {
+  const data = {
+    owner: owner,
+    organization: organization,
+    name: name,
+    policy: policy,
+  };
   return fetch(`${Setting.ServerUrl}/api/add-policy?id=${owner}/${encodeURIComponent(name)}`, {
     method: "POST",
     credentials: "include",
-    body: JSON.stringify(policy),
+    body: JSON.stringify(data),
     headers: {
       "Accept-Language": Setting.getAcceptLanguage(),
     },
@@ -103,8 +109,8 @@ export function RemovePolicy(owner, name, policy) {
   }).then(res => res.json());
 }
 
-export function syncPolicies(owner, name) {
-  return fetch(`${Setting.ServerUrl}/api/sync-policies?id=${owner}/${encodeURIComponent(name)}`, {
+export function syncPolicies(owner, organization, name) {
+  return fetch(`${Setting.ServerUrl}/api/sync-policies?id=${owner}/${encodeURIComponent(name)}&organization=${organization}`, {
     method: "GET",
     credentials: "include",
     headers: {

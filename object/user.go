@@ -232,6 +232,16 @@ func GetUserCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetUserCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
+	count, err := session.Count(&User{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetOnlineUserCount(owner string, isOnline int) int {
 	count, err := adapter.Engine.Where("is_online = ?", isOnline).Count(&User{Owner: owner})
 	if err != nil {
@@ -244,6 +254,16 @@ func GetOnlineUserCount(owner string, isOnline int) int {
 func GetUsers(owner string) []*User {
 	users := []*User{}
 	err := adapter.Engine.Desc("created_time").Find(&users, &User{Owner: owner})
+	if err != nil {
+		panic(err)
+	}
+
+	return users
+}
+
+func GetUsersByOwners(owners []string) []*User {
+	users := []*User{}
+	err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&users)
 	if err != nil {
 		panic(err)
 	}
@@ -274,6 +294,17 @@ func GetSortedUsers(owner string, sorter string, limit int) []*User {
 func GetPaginationUsers(owner string, offset, limit int, field, value, sortField, sortOrder string) []*User {
 	users := []*User{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&users)
+	if err != nil {
+		panic(err)
+	}
+
+	return users
+}
+
+func GetPaginationUsersByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*User {
+	users := []*User{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&users)
 	if err != nil {
 		panic(err)

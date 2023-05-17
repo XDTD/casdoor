@@ -46,7 +46,7 @@ class ChatListPage extends BaseListPage {
     ChatBackend.addChat(newChat)
       .then((res) => {
         if (res.status === "ok") {
-          this.props.history.push({pathname: `/chats/${newChat.name}`, mode: "add"});
+          this.props.history.push({pathname: `/chats/${newChat.organization}/${newChat.name}`, mode: "add"});
           Setting.showMessage("success", i18next.t("general:Successfully added"));
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to add")}: ${res.msg}`);
@@ -220,7 +220,7 @@ class ChatListPage extends BaseListPage {
         render: (text, record, index) => {
           return (
             <div>
-              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/chats/${record.name}`)}>{i18next.t("general:Edit")}</Button>
+              <Button style={{marginTop: "10px", marginBottom: "10px", marginRight: "10px"}} type="primary" onClick={() => this.props.history.push(`/chats/${record.organization}/${record.name}`)}>{i18next.t("general:Edit")}</Button>
               <PopconfirmModal
                 title={i18next.t("general:Sure to delete") + `: ${record.name} ?`}
                 onConfirm={() => this.deleteChat(index)}
@@ -266,7 +266,7 @@ class ChatListPage extends BaseListPage {
       value = params.type;
     }
     this.setState({loading: true});
-    ChatBackend.getChats("admin", params.pagination.current, params.pagination.pageSize, field, value, sortField, sortOrder)
+    ChatBackend.getChats("admin", Setting.isAdminUser(this.props.account) ? "" : this.props.account.owner, params.pagination.current, params.pagination.pageSize, field, value, sortField, sortOrder)
       .then((res) => {
         if (res.status === "ok") {
           this.setState({

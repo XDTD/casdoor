@@ -38,13 +38,15 @@ func (c *ApiController) GetSyncers() {
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
 	organization := c.Input().Get("organization")
+	userId := c.GetSessionUsername()
+	extendOrganizations := object.GetExtendedOrganizationsByPermission(userId, organization)
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetOrganizationSyncers(owner, organization)
+		c.Data["json"] = object.GetSyncersByOrganizations(owner, extendOrganizations)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetSyncerCount(owner, organization, field, value)))
-		syncers := object.GetPaginationSyncers(owner, organization, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetSyncerCountByOrganizations(owner, extendOrganizations, field, value)))
+		syncers := object.GetPaginationSyncersByOrganizations(owner, extendOrganizations, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		c.ResponseOk(syncers, paginator.Nums())
 	}
 }

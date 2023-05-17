@@ -37,13 +37,16 @@ func (c *ApiController) GetPlans() {
 	value := c.Input().Get("value")
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
+	userId := c.GetSessionUsername()
+	extendOwners := object.GetExtendedOrganizationsByPermission(userId, owner)
+
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetPlans(owner)
+		c.Data["json"] = object.GetPlansByOwners(extendOwners)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetPlanCount(owner, field, value)))
-		plan := object.GetPaginatedPlans(owner, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetPlanCountByOwners(extendOwners, field, value)))
+		plan := object.GetPaginationedPlansByOwners(extendOwners, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		c.ResponseOk(plan, paginator.Nums())
 	}
 }

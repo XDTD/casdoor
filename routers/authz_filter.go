@@ -26,8 +26,9 @@ import (
 )
 
 type Object struct {
-	Owner string `json:"owner"`
-	Name  string `json:"name"`
+	Owner        string `json:"owner"`
+	Name         string `json:"name"`
+	Organization string `json:"organization"`
 }
 
 func getUsername(ctx *context.Context) (username string) {
@@ -61,10 +62,19 @@ func getObject(ctx *context.Context) (string, string) {
 	path := ctx.Request.URL.Path
 
 	if method == http.MethodGet {
+
+		organization := ctx.Input.Query("organization")
+		if organization != "" {
+			return organization, ""
+		}
 		// query == "?id=built-in/admin"
 		id := ctx.Input.Query("id")
 		if id != "" {
-			return util.GetOwnerAndNameFromId(id)
+			owner, name := util.GetOwnerAndNameFromId(id)
+			if path == "/api/get-organization" {
+				return name, ""
+			}
+			return owner, name
 		}
 
 		owner := ctx.Input.Query("owner")
@@ -92,6 +102,13 @@ func getObject(ctx *context.Context) (string, string) {
 			if len(tokens) >= 5 {
 				obj.Name = tokens[4]
 			}
+		}
+		if util.IsOrganizationPath(path) {
+			return obj.Name, ""
+		}
+
+		if obj.Organization != "" {
+			return obj.Organization, obj.Name
 		}
 
 		return obj.Owner, obj.Name

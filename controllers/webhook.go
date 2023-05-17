@@ -38,13 +38,15 @@ func (c *ApiController) GetWebhooks() {
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
 	organization := c.Input().Get("organization")
+	userId := c.GetSessionUsername()
+	extendOrganizations := object.GetExtendedOrganizationsByPermission(userId, organization)
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetWebhooks(owner, organization)
+		c.Data["json"] = object.GetWebhooksByOrganizations(owner, extendOrganizations)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetWebhookCount(owner, organization, field, value)))
-		webhooks := object.GetPaginationWebhooks(owner, organization, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetWebhookCountByOrganizations(owner, extendOrganizations, field, value)))
+		webhooks := object.GetPaginationWebhooksByOrganizations(owner, extendOrganizations, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		c.ResponseOk(webhooks, paginator.Nums())
 	}
 }

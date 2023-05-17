@@ -80,6 +80,16 @@ func GetOrganizationCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetOrganizationCountByName(owner string, organizationNames []string, field, value string) int {
+	session := GetSession(owner, -1, -1, field, value, "", "")
+	count, err := session.In("Name", organizationNames).Count(&Organization{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetOrganizations(owner string) []*Organization {
 	organizations := []*Organization{}
 	err := adapter.Engine.Desc("created_time").Find(&organizations, &Organization{Owner: owner})
@@ -94,6 +104,17 @@ func GetPaginationOrganizations(owner string, offset, limit int, field, value, s
 	organizations := []*Organization{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&organizations)
+	if err != nil {
+		panic(err)
+	}
+
+	return organizations
+}
+
+func GetPaginationOrganizationsByNames(owner string, organizationNames []string, offset, limit int, field, value, sortField, sortOrder string) []*Organization {
+	organizations := []*Organization{}
+	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
+	err := session.In("Name", organizationNames).Find(&organizations)
 	if err != nil {
 		panic(err)
 	}
@@ -117,6 +138,16 @@ func getOrganization(owner string, name string) *Organization {
 	}
 
 	return nil
+}
+
+func GetOrganizationsByNames(organizationNames []string) []*Organization {
+	organizations := []*Organization{}
+	for _, organizationName := range organizationNames {
+		if organization := getOrganization("admin", organizationName); organization != nil {
+			organizations = append(organizations, organization)
+		}
+	}
+	return organizations
 }
 
 func GetOrganization(id string) *Organization {
@@ -432,4 +463,21 @@ func (org *Organization) GetInitScore() (int, error) {
 	} else {
 		return strconv.Atoi(conf.GetConfigString("initScore"))
 	}
+}
+
+func GetExtendedOrganizationsByPermission(userId, owner string) []string {
+	oganizationNames := make([]string, 0, 10)
+	if owner == "" {
+		return oganizationNames
+	}
+	oganizationNames = append(oganizationNames, owner)
+	if userId != "" {
+		permissions := GetPermissionsByUser(userId)
+		for _, permission := range permissions {
+			if permission.ResourceType == "Organization" {
+				oganizationNames = append(oganizationNames, permission.Resources...)
+			}
+		}
+	}
+	return util.UniqueStrings(oganizationNames)
 }

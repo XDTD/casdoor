@@ -34,6 +34,7 @@ class SyncerEditPage extends React.Component {
     this.state = {
       classes: props,
       syncerName: props.match.params.syncerName,
+      organizationName: props.match.params.organizationName,
       syncer: null,
       organizations: [],
       mode: props.location.mode !== undefined ? props.location.mode : "edit",
@@ -46,7 +47,7 @@ class SyncerEditPage extends React.Component {
   }
 
   getSyncer() {
-    SyncerBackend.getSyncer("admin", this.state.syncerName)
+    SyncerBackend.getSyncer("admin", this.state.organizationName, this.state.syncerName)
       .then((syncer) => {
         this.setState({
           syncer: syncer,
@@ -186,7 +187,7 @@ class SyncerEditPage extends React.Component {
             {Setting.getLabel(i18next.t("general:Organization"), i18next.t("general:Organization - Tooltip"))} :
           </Col>
           <Col span={22} >
-            <Select virtual={false} style={{width: "100%"}} disabled={!Setting.isAdminUser(this.props.account)} value={this.state.syncer.organization} onChange={(value => {this.updateSyncerField("organization", value);})}>
+            <Select virtual={false} style={{width: "100%"}} disabled={!Setting.isLocalAdminUser(this.props.account)} value={this.state.syncer.organization} onChange={(value => {this.updateSyncerField("organization", value);})}>
               {
                 this.state.organizations.map((organization, index) => <Option key={index} value={organization.name}>{organization.name}</Option>)
               }
@@ -398,7 +399,7 @@ class SyncerEditPage extends React.Component {
           if (willExist) {
             this.props.history.push("/syncers");
           } else {
-            this.props.history.push(`/syncers/${this.state.syncer.name}`);
+            this.props.history.push(`/syncers/${this.state.syncer.organization}/${this.state.syncer.name}`);
           }
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to save")}: ${res.msg}`);

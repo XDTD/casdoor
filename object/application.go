@@ -98,6 +98,16 @@ func GetOrganizationApplicationCount(owner, Organization, field, value string) i
 	return int(count)
 }
 
+func GetApplicationsCountByOrganizations(owner string, organizations []string, field, value string) int {
+	session := GetSessionByOrganizations(owner, organizations, -1, -1, field, value, "", "")
+	count, err := session.Count(&Application{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetApplications(owner string) []*Application {
 	applications := []*Application{}
 	err := adapter.Engine.Desc("created_time").Find(&applications, &Application{Owner: owner})
@@ -111,6 +121,20 @@ func GetApplications(owner string) []*Application {
 func GetOrganizationApplications(owner string, organization string) []*Application {
 	applications := []*Application{}
 	err := adapter.Engine.Desc("created_time").Find(&applications, &Application{Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return applications
+}
+
+func GetApplicationsByOrganizations(owner string, organizations []string) []*Application {
+	applications := []*Application{}
+	query := adapter.Engine.Desc("created_time")
+	if len(organizations) > 0 {
+		query = query.In("organization", organizations)
+	}
+	err := query.Find(&applications, &Application{Owner: owner})
 	if err != nil {
 		panic(err)
 	}
@@ -133,6 +157,17 @@ func GetPaginationOrganizationApplications(owner, organization string, offset, l
 	applications := []*Application{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&applications, &Application{Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return applications
+}
+
+func GetPaginationApplicationsByOrganizations(owner string, organizations []string, offset, limit int, field, value, sortField, sortOrder string) []*Application {
+	applications := []*Application{}
+	session := GetSessionByOrganizations(owner, organizations, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&applications)
 	if err != nil {
 		panic(err)
 	}

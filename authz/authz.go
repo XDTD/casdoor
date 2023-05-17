@@ -124,6 +124,7 @@ p, *, *, GET, /api/get-release, *, *
 p, *, *, GET, /api/get-default-application, *, *
 p, *, *, GET, /api/get-prometheus-info, *, *
 p, *, *, *, /api/metrics, *, *
+p, *, *, GET, /api/get-organizations, *, *
 p, *, *, GET, /api/get-subscriptions, *, *
 p, *, *, GET, /api/get-pricing, *, *
 p, *, *, GET, /api/get-plan, *, *
@@ -156,7 +157,7 @@ func IsAllowed(subOwner string, subName string, method string, urlPath string, o
 	user := object.GetUser(util.GetId(subOwner, subName))
 
 	if user != nil {
-		if user.IsAdmin && subOwner == objOwner {
+		if user.IsAdmin && (subOwner == objOwner || objOwner == "admin" && subOwner == objName) {
 			return true
 		}
 		res, err := object.CheckPermission(user, objOwner, method)
@@ -174,9 +175,6 @@ func IsAllowed(subOwner string, subName string, method string, urlPath string, o
 	res, err := Enforcer.Enforce(subOwner, subName, method, urlPath, objOwner, objName)
 	if err != nil {
 		panic(err)
-	}
-	if res {
-		return true
 	}
 
 	return res

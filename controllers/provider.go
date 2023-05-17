@@ -42,14 +42,16 @@ func (c *ApiController) GetProviders() {
 	if !ok {
 		return
 	}
-
+	userId := c.GetSessionUsername()
+	extendOwners := object.GetExtendedOrganizationsByPermission(userId, owner)
+	extendOwners = append(extendOwners, "admin")
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetMaskedProviders(object.GetProviders(owner), isMaskEnabled)
+		c.Data["json"] = object.GetMaskedProviders(object.GetProvidersByOwners(extendOwners), isMaskEnabled)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetProviderCount(owner, field, value)))
-		providers := object.GetMaskedProviders(object.GetPaginationProviders(owner, paginator.Offset(), limit, field, value, sortField, sortOrder), isMaskEnabled)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetProviderCountByOwners(extendOwners, field, value)))
+		providers := object.GetMaskedProviders(object.GetPaginationProvidersByOwners(extendOwners, paginator.Offset(), limit, field, value, sortField, sortOrder), isMaskEnabled)
 		c.ResponseOk(providers, paginator.Nums())
 	}
 }

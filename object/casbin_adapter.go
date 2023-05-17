@@ -56,6 +56,16 @@ func GetCasbinAdapterCount(owner, organization, field, value string) int {
 	return int(count)
 }
 
+func GetCasbinAdapterCountByOrganizations(owner string, organizations []string, field, value string) int {
+	session := GetSessionByOrganizations(owner, organizations, -1, -1, field, value, "", "")
+	count, err := session.Count(&CasbinAdapter{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetCasbinAdapters(owner string, organization string) []*CasbinAdapter {
 	adapters := []*CasbinAdapter{}
 	err := adapter.Engine.Where("owner = ? and organization = ?", owner, organization).Find(&adapters)
@@ -66,10 +76,52 @@ func GetCasbinAdapters(owner string, organization string) []*CasbinAdapter {
 	return adapters
 }
 
+func GetCasbinAdaptersByOrganizations(owner string, organizations []string) []*CasbinAdapter {
+	adapters := []*CasbinAdapter{}
+	query := adapter.Engine.Desc("created_time")
+	if len(organizations) > 0 {
+		query = query.In("organization", organizations)
+	}
+	err := query.Find(&adapters, &CasbinAdapter{Owner: owner})
+	if err != nil {
+		panic(err)
+	}
+
+	return adapters
+}
+
+func GetCasbinAdaptersByOwners(owners []string) []*CasbinAdapter {
+	adapters := []*CasbinAdapter{}
+	if util.ContainsEmptyString(owners) {
+		err := adapter.Engine.Desc("created_time").Find(&adapters)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&adapters)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return adapters
+}
+
 func GetPaginationCasbinAdapters(owner, organization string, page, limit int, field, value, sort, order string) []*CasbinAdapter {
 	session := GetSession(owner, page, limit, field, value, sort, order)
 	adapters := []*CasbinAdapter{}
 	err := session.Find(&adapters, &CasbinAdapter{Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return adapters
+}
+
+func GetPaginationCasbinAdaptersByOrganizations(owner string, organizations []string, offset, limit int, field, value, sortField, sortOrder string) []*CasbinAdapter {
+	adapters := []*CasbinAdapter{}
+	session := GetSessionByOrganizations(owner, organizations, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&adapters)
 	if err != nil {
 		panic(err)
 	}

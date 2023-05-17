@@ -444,14 +444,7 @@ func CheckPermission(user *User, resourceName, httpMethod string) (bool, error) 
 
 		if isHit {
 			enforcer := getEnforcer(permission)
-			switch httpMethod {
-			case "GET", "HEAD":
-				method = "read"
-			case "POST", "DELETE", "PUT", "PATCH":
-				method = "write"
-			default:
-				method = "read"
-			}
+			method = util.HTTPMethodToRW(httpMethod)
 			if allowed, err = enforcer.Enforce(user.GetId(), resourceName, method); allowed {
 				return allowed, err
 			}

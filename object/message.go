@@ -58,9 +58,33 @@ func GetMessageCount(owner, organization, field, value string) int {
 	return int(count)
 }
 
+func GetMessageCountByOrganizations(owner string, organizations []string, field, value string) int {
+	session := GetSessionByOrganizations(owner, organizations, -1, -1, field, value, "", "")
+	count, err := session.Count(&Message{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetMessages(owner string) []*Message {
 	messages := []*Message{}
 	err := adapter.Engine.Desc("created_time").Find(&messages, &Message{Owner: owner})
+	if err != nil {
+		panic(err)
+	}
+
+	return messages
+}
+
+func GetMessagesByOrganizations(owner string, organizations []string) []*Message {
+	messages := []*Message{}
+	query := adapter.Engine.Desc("created_time")
+	if len(organizations) > 0 {
+		query = query.In("organization", organizations)
+	}
+	err := query.Find(&messages, &Message{Owner: owner})
 	if err != nil {
 		panic(err)
 	}
@@ -82,6 +106,17 @@ func GetPaginationMessages(owner, organization string, offset, limit int, field,
 	messages := []*Message{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&messages, &Message{Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return messages
+}
+
+func GetPaginationMessagesByOrganizations(owner string, organizations []string, offset, limit int, field, value, sortField, sortOrder string) []*Message {
+	messages := []*Message{}
+	session := GetSessionByOrganizations(owner, organizations, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&messages)
 	if err != nil {
 		panic(err)
 	}

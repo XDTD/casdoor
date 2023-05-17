@@ -24,8 +24,8 @@ export function getSyncers(owner, organization, page = "", pageSize = "", field 
   }).then(res => res.json());
 }
 
-export function getSyncer(owner, name) {
-  return fetch(`${Setting.ServerUrl}/api/get-syncer?id=${owner}/${encodeURIComponent(name)}`, {
+export function getSyncer(owner, organization, name) {
+  return fetch(`${Setting.ServerUrl}/api/get-syncer?id=${owner}/${encodeURIComponent(name)}&organization=${organization}`, {
     method: "GET",
     credentials: "include",
     headers: {

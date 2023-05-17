@@ -278,3 +278,24 @@ func GetEndPoint(endpoint string) string {
 	}
 	return endpoint
 }
+
+func ContainsEmptyString(strs []string) bool {
+	for _, str := range strs {
+		if str == "" {
+			return true
+		}
+	}
+	return false
+}
+
+func UniqueStrings(strs []string) []string {
+	seen := make(map[string]bool)
+	uniq := make([]string, 0, len(strs))
+	for _, str := range strs {
+		if _, ok := seen[str]; !ok {
+			seen[str] = true
+			uniq = append(uniq, str)
+		}
+	}
+	return uniq
+}

@@ -31,20 +31,22 @@ import (
 // @router /get-chats [get]
 func (c *ApiController) GetChats() {
 	owner := c.Input().Get("owner")
-	owner = "admin"
 	limit := c.Input().Get("pageSize")
 	page := c.Input().Get("p")
 	field := c.Input().Get("field")
 	value := c.Input().Get("value")
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
+	organization := c.Input().Get("organization")
+	userId := c.GetSessionUsername()
+	extendOrganizations := object.GetExtendedOrganizationsByPermission(userId, organization)
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetMaskedChats(object.GetChats(owner))
+		c.Data["json"] = object.GetMaskedChats(object.GetChatsByOrganizations(owner, extendOrganizations))
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetChatCount(owner, field, value)))
-		chats := object.GetMaskedChats(object.GetPaginationChats(owner, paginator.Offset(), limit, field, value, sortField, sortOrder))
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetChatCountByOrganizations(owner, extendOrganizations, field, value)))
+		chats := object.GetMaskedChats(object.GetPaginationChatsByOrganizations(owner, extendOrganizations, paginator.Offset(), limit, field, value, sortField, sortOrder))
 		c.ResponseOk(chats, paginator.Nums())
 	}
 }

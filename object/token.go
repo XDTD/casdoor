@@ -101,9 +101,33 @@ func GetTokenCount(owner, organization, field, value string) int {
 	return int(count)
 }
 
+func GetTokenCountByOrganizations(owner string, organizations []string, field, value string) int {
+	session := GetSessionByOrganizations(owner, organizations, -1, -1, field, value, "", "")
+	count, err := session.Count(&Token{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetTokens(owner string, organization string) []*Token {
 	tokens := []*Token{}
 	err := adapter.Engine.Desc("created_time").Find(&tokens, &Token{Owner: owner, Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return tokens
+}
+
+func GetTokensByOrganizations(owner string, organizations []string) []*Token {
+	tokens := []*Token{}
+	query := adapter.Engine.Desc("created_time")
+	if len(organizations) > 0 {
+		query = query.In("organization", organizations)
+	}
+	err := query.Find(&tokens, &Token{Owner: owner})
 	if err != nil {
 		panic(err)
 	}
@@ -115,6 +139,17 @@ func GetPaginationTokens(owner, organization string, offset, limit int, field, v
 	tokens := []*Token{}
 	session := GetSession(owner, offset, limit, field, value, sortField, sortOrder)
 	err := session.Find(&tokens, &Token{Organization: organization})
+	if err != nil {
+		panic(err)
+	}
+
+	return tokens
+}
+
+func GetPaginationTokensByOrganizations(owner string, organizations []string, offset, limit int, field, value, sortField, sortOrder string) []*Token {
+	tokens := []*Token{}
+	session := GetSessionByOrganizations(owner, organizations, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&tokens)
 	if err != nil {
 		panic(err)
 	}

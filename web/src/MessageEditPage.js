@@ -29,6 +29,7 @@ class MessageEditPage extends React.Component {
     this.state = {
       classes: props,
       messageName: props.match.params.messageName,
+      organizationName: props.match.params.organizationName,
       message: null,
       organizations: [],
       chats: [],
@@ -44,7 +45,7 @@ class MessageEditPage extends React.Component {
   }
 
   getMessage() {
-    MessageBackend.getMessage("admin", this.state.messageName)
+    MessageBackend.getMessage("admin", this.state.organizationName, this.state.messageName)
       .then((message) => {
         this.setState({
           message: message,
@@ -64,7 +65,7 @@ class MessageEditPage extends React.Component {
   }
 
   getChats() {
-    ChatBackend.getChats("admin")
+    ChatBackend.getChats("admin", this.state.organization)
       .then((res) => {
         this.setState({
           chats: (res.msg === undefined) ? res : [],
@@ -113,7 +114,7 @@ class MessageEditPage extends React.Component {
             {Setting.getLabel(i18next.t("general:Organization"), i18next.t("general:Organization - Tooltip"))} :
           </Col>
           <Col span={22} >
-            <Select virtual={false} disabled={!Setting.isAdminUser(this.props.account)} style={{width: "100%"}} value={this.state.message.organization} onChange={(value => {this.updateMessageField("organization", value);})}
+            <Select virtual={false} disabled={!Setting.isLocalAdminUser(this.props.account)} style={{width: "100%"}} value={this.state.message.organization} onChange={(value => {this.updateMessageField("organization", value);})}
               options={this.state.organizations.map((organization) => Setting.getOption(organization.name, organization.name))
               } />
           </Col>
@@ -175,7 +176,7 @@ class MessageEditPage extends React.Component {
           if (willExist) {
             this.props.history.push("/messages");
           } else {
-            this.props.history.push(`/messages/${this.state.message.name}`);
+            this.props.history.push(`/messages/${this.state.message.organization}/${this.state.message.name}`);
           }
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to save")}: ${res.msg}`);

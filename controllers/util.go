@@ -114,6 +114,25 @@ func (c *ApiController) RequireAdmin() (string, bool) {
 	return user.Owner, true
 }
 
+// RequireSignedInAdmin ...
+func (c *ApiController) RequireSignedInAdmin() (*object.User, bool) {
+	userId, ok := c.RequireSignedIn()
+	if !ok {
+		return nil, false
+	}
+
+	user := object.GetUser(userId)
+	if user == nil {
+		c.ClearUserSession()
+		c.ResponseError(fmt.Sprintf(c.T("general:The user: %s doesn't exist"), userId))
+		return nil, false
+	}
+	if !user.IsAdmin {
+		return nil, false
+	}
+	return user, true
+}
+
 // IsMaskedEnabled ...
 func (c *ApiController) IsMaskedEnabled() (bool, bool) {
 	isMaskEnabled := true

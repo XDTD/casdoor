@@ -34,8 +34,8 @@ export function getChatMessages(chat) {
   }).then(res => res.json());
 }
 
-export function getMessage(owner, name) {
-  return fetch(`${Setting.ServerUrl}/api/get-message?id=${owner}/${encodeURIComponent(name)}`, {
+export function getMessage(owner, organization, name) {
+  return fetch(`${Setting.ServerUrl}/api/get-message?id=${owner}/${encodeURIComponent(name)}&organization=${organization}`, {
     method: "GET",
     credentials: "include",
     headers: {

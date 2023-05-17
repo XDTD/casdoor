@@ -37,13 +37,15 @@ func (c *ApiController) GetSessions() {
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
 	owner := c.Input().Get("owner")
+	userId := c.GetSessionUsername()
+	extendowners := object.GetExtendedOrganizationsByPermission(userId, owner)
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetSessions(owner)
+		c.Data["json"] = object.GetSessionsByOwners(extendowners)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetSessionCount(owner, field, value)))
-		sessions := object.GetPaginationSessions(owner, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetSessionsCountByOwners(extendowners, field, value)))
+		sessions := object.GetPaginationSessionsByOwners(extendowners, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		c.ResponseOk(sessions, paginator.Nums())
 	}
 }

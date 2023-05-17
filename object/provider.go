@@ -113,6 +113,16 @@ func GetProviderCount(owner, field, value string) int {
 	return int(count)
 }
 
+func GetProviderCountByOwners(owners []string, field, value string) int {
+	session := GetSessionByOwners(owners, -1, -1, field, value, "", "")
+	count, err := session.Count(&Provider{})
+	if err != nil {
+		panic(err)
+	}
+
+	return int(count)
+}
+
 func GetGlobalProviderCount(field, value string) int {
 	session := GetSession("", -1, -1, field, value, "", "")
 	count, err := session.Count(&Provider{})
@@ -126,6 +136,16 @@ func GetGlobalProviderCount(field, value string) int {
 func GetProviders(owner string) []*Provider {
 	providers := []*Provider{}
 	err := adapter.Engine.Where("owner = ? or owner = ? ", "admin", owner).Desc("created_time").Find(&providers, &Provider{})
+	if err != nil {
+		panic(err)
+	}
+
+	return providers
+}
+
+func GetProvidersByOwners(owners []string) []*Provider {
+	providers := []*Provider{}
+	err := adapter.Engine.Desc("created_time").In("owner", owners).Find(&providers)
 	if err != nil {
 		panic(err)
 	}
@@ -147,6 +167,17 @@ func GetPaginationProviders(owner string, offset, limit int, field, value, sortF
 	providers := []*Provider{}
 	session := GetSession("", offset, limit, field, value, sortField, sortOrder)
 	err := session.Where("owner = ? or owner = ? ", "admin", owner).Find(&providers)
+	if err != nil {
+		panic(err)
+	}
+
+	return providers
+}
+
+func GetPaginationProvidersByOwners(owners []string, offset, limit int, field, value, sortField, sortOrder string) []*Provider {
+	providers := []*Provider{}
+	session := GetSessionByOwners(owners, offset, limit, field, value, sortField, sortOrder)
+	err := session.Find(&providers)
 	if err != nil {
 		panic(err)
 	}

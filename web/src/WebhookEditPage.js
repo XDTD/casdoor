@@ -109,6 +109,7 @@ class WebhookEditPage extends React.Component {
     this.state = {
       classes: props,
       webhookName: props.match.params.webhookName,
+      organizationName: props.match.params.organizationName,
       webhook: null,
       organizations: [],
       mode: props.location.mode !== undefined ? props.location.mode : "edit",
@@ -121,7 +122,7 @@ class WebhookEditPage extends React.Component {
   }
 
   getWebhook() {
-    WebhookBackend.getWebhook("admin", this.state.webhookName)
+    WebhookBackend.getWebhook("admin", this.state.organizationName, this.state.webhookName)
       .then((webhook) => {
         this.setState({
           webhook: webhook,
@@ -176,7 +177,7 @@ class WebhookEditPage extends React.Component {
             {Setting.getLabel(i18next.t("general:Organization"), i18next.t("general:Organization - Tooltip"))} :
           </Col>
           <Col span={22} >
-            <Select virtual={false} style={{width: "100%"}} disabled={!Setting.isAdminUser(this.props.account)} value={this.state.webhook.organization} onChange={(value => {this.updateWebhookField("organization", value);})}>
+            <Select virtual={false} style={{width: "100%"}} disabled={!Setting.isLocalAdminUser(this.props.account)} value={this.state.webhook.organization} onChange={(value => {this.updateWebhookField("organization", value);})}>
               {
                 this.state.organizations.map((organization, index) => <Option key={index} value={organization.name}>{organization.name}</Option>)
               }
@@ -320,7 +321,7 @@ class WebhookEditPage extends React.Component {
           if (willExist) {
             this.props.history.push("/webhooks");
           } else {
-            this.props.history.push(`/webhooks/${this.state.webhook.name}`);
+            this.props.history.push(`/webhooks/${this.state.webhook.organization}/${this.state.webhook.name}`);
           }
         } else {
           Setting.showMessage("error", `${i18next.t("general:Failed to save")}: ${res.msg}`);

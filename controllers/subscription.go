@@ -37,13 +37,16 @@ func (c *ApiController) GetSubscriptions() {
 	value := c.Input().Get("value")
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
+	userId := c.GetSessionUsername()
+	extendOwners := object.GetExtendedOrganizationsByPermission(userId, owner)
+
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetSubscriptions(owner)
+		c.Data["json"] = object.GetSubscriptionsByOwners(extendOwners)
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
-		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetSubscriptionCount(owner, field, value)))
-		subscription := object.GetPaginationSubscriptions(owner, paginator.Offset(), limit, field, value, sortField, sortOrder)
+		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetSubscriptionCountByOwners(extendOwners, field, value)))
+		subscription := object.GetPaginationedSubscriptionsByOwners(extendOwners, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		c.ResponseOk(subscription, paginator.Nums())
 	}
 }

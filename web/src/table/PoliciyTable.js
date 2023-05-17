@@ -102,7 +102,7 @@ class PolicyTable extends React.Component {
 
   synPolicies() {
     this.setState({loading: true});
-    AdapterBackend.syncPolicies(this.props.owner, this.props.name)
+    AdapterBackend.syncPolicies("admin", this.props.owner, this.props.name)
       .then((res) => {
         if (res.status === "ok") {
           Setting.showMessage("success", i18next.t("adapter:Sync policies successfully"));
@@ -135,7 +135,7 @@ class PolicyTable extends React.Component {
   }
 
   addPolicy(table, i) {
-    AdapterBackend.AddPolicy(this.props.owner, this.props.name, table[i]).then(res => {
+    AdapterBackend.AddPolicy("admin", this.props.owner, this.props.name, table[i]).then(res => {
       if (res.status === "ok") {
         this.setState({editingIndex: "", oldPolicy: "", add: false});
         if (res.data !== "Affected") {
