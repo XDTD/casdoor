@@ -107,6 +107,7 @@ func FilterQuery(urlString string, blackList []string) string {
 		return urlData.Path
 	}
 }
+
 func IsOrganizationPath(path string) bool {
 	pattern := "/api/*organization"
 	if len(path) <= len(pattern) {

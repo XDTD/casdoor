@@ -64,7 +64,6 @@ func (c *ApiController) GetOrganizations() {
 			c.ResponseOk(organizations, paginator.Nums())
 		}
 	}
-
 }
 
 // GetOrganization ...
