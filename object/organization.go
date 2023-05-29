@@ -443,3 +443,16 @@ func (org *Organization) GetInitScore() (int, error) {
 		return strconv.Atoi(conf.GetConfigString("initScore"))
 	}
 }
+
+func GetExtendedOrganizationsByPermission(userId, owner string) []string {
+	organizationNames := []string{owner}
+	if userId != "" {
+		permissions := GetPermissionsByUser(userId)
+		for _, permission := range permissions {
+			if permission.ResourceType == "Organization" {
+				organizationNames = append(organizationNames, permission.Resources...)
+			}
+		}
+	}
+	return util.UniqueStrings(organizationNames)
+}

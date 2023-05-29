@@ -144,6 +144,10 @@ class UserEditPage extends React.Component {
     return this.isSelf() || Setting.isAdminUser(this.props.account);
   }
 
+  isSelfOrLocalAdmin() {
+    return this.isSelf() || Setting.isLocalAdminUser(this.props.account);
+  }
+
   getCountryCode() {
     return this.props.account.countryCode;
   }
@@ -206,7 +210,7 @@ class UserEditPage extends React.Component {
     }
 
     const isAdmin = Setting.isAdminUser(this.props.account);
-
+    const isLocalAdmin = Setting.isLocalAdminUser(this.props.account);
     // return (
     //   <div>
     //     {
@@ -216,7 +220,7 @@ class UserEditPage extends React.Component {
     // )
 
     if (accountItem.viewRule === "Self") {
-      if (!this.isSelfOrAdmin()) {
+      if (!this.isSelfOrLocalAdmin()) {
         return null;
       }
     } else if (accountItem.viewRule === "Admin") {
@@ -227,11 +231,11 @@ class UserEditPage extends React.Component {
 
     let disabled = false;
     if (accountItem.modifyRule === "Self") {
-      if (!this.isSelfOrAdmin()) {
+      if (!this.isSelfOrLocalAdmin()) {
         disabled = true;
       }
     } else if (accountItem.modifyRule === "Admin") {
-      if (!isAdmin) {
+      if (!isLocalAdmin) {
         disabled = true;
       }
     } else if (accountItem.modifyRule === "Immutable") {
@@ -280,7 +284,7 @@ class UserEditPage extends React.Component {
             {Setting.getLabel(i18next.t("general:Name"), i18next.t("general:Name - Tooltip"))} :
           </Col>
           <Col span={22} >
-            <Input value={this.state.user.name} disabled={disabled} onChange={e => {
+            <Input value={this.state.user.name} disabled={!isLocalAdmin} onChange={e => {
               this.updateUserField("name", e.target.value);
             }} />
           </Col>
@@ -293,7 +297,7 @@ class UserEditPage extends React.Component {
             {Setting.getLabel(i18next.t("general:Display name"), i18next.t("general:Display name - Tooltip"))} :
           </Col>
           <Col span={22} >
-            <Input value={this.state.user.displayName} onChange={e => {
+            <Input value={this.state.user.displayName} disabled={!isLocalAdmin} onChange={e => {
               this.updateUserField("displayName", e.target.value);
             }} />
           </Col>

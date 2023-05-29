@@ -16,6 +16,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"reflect"
 
 	"github.com/beego/beego/utils/pagination"
 	"github.com/casdoor/casdoor/object"
@@ -160,4 +161,44 @@ func (c *ApiController) GetOrganizationNames() {
 	owner := c.Input().Get("owner")
 	organizationNames := object.GetOrganizationsByFields(owner, "name")
 	c.ResponseOk(organizationNames)
+}
+
+func (c *ApiController) OrganizationFilter(resources interface{}) interface{} {
+	val := reflect.ValueOf(resources)
+	if val.Kind() != reflect.Slice || val.Len() == 0 {
+		return resources
+	}
+	filteredResources := reflect.MakeSlice(val.Type(), 0, 0)
+
+	userId := c.GetSessionUsername()
+	owner := c.Input().Get("owner")
+	if owner == "" {
+		return resources
+	}
+	extendOrganizationNames := object.GetExtendedOrganizationsByPermission(userId, owner)
+
+	var targetName string
+	if nameField := val.Index(0).Elem().FieldByName("Organization"); nameField.IsValid() && nameField.Kind() == reflect.String {
+		targetName = "Organization"
+	} else if nameField := val.Index(0).Elem().FieldByName("Owner"); nameField.IsValid() && nameField.Kind() == reflect.String {
+		targetName = "Owner"
+	} else {
+		return resources
+	}
+
+	for i := 0; i < val.Len(); i++ {
+		elem := val.Index(i)
+		nameField := elem.Elem().FieldByName(targetName)
+		if nameField.Kind() != reflect.String {
+			continue
+		}
+		for _, s := range extendOrganizationNames {
+			if nameField.String() == s {
+				filteredResources = reflect.Append(filteredResources, elem)
+				break
+			}
+		}
+	}
+
+	return filteredResources.Interface()
 }

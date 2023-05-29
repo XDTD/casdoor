@@ -278,3 +278,15 @@ func GetEndPoint(endpoint string) string {
 	}
 	return endpoint
 }
+
+func UniqueStrings(strs []string) []string {
+	seen := make(map[string]bool)
+	uniq := make([]string, 0, len(strs))
+	for _, str := range strs {
+		if _, ok := seen[str]; !ok {
+			seen[str] = true
+			uniq = append(uniq, str)
+		}
+	}
+	return uniq
+}

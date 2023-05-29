@@ -57,7 +57,7 @@ func (c *ApiController) GetGlobalUsers() {
 // @Success 200 {array} object.User The Response object
 // @router /get-users [get]
 func (c *ApiController) GetUsers() {
-	owner := c.Input().Get("owner")
+	owner := ""
 	limit := c.Input().Get("pageSize")
 	page := c.Input().Get("p")
 	field := c.Input().Get("field")
@@ -65,14 +65,14 @@ func (c *ApiController) GetUsers() {
 	sortField := c.Input().Get("sortField")
 	sortOrder := c.Input().Get("sortOrder")
 	if limit == "" || page == "" {
-		c.Data["json"] = object.GetMaskedUsers(object.GetUsers(owner))
+		c.Data["json"] = c.OrganizationFilter(object.GetMaskedUsers(object.GetUsers(owner)))
 		c.ServeJSON()
 	} else {
 		limit := util.ParseInt(limit)
 		paginator := pagination.SetPaginator(c.Ctx, limit, int64(object.GetUserCount(owner, field, value)))
 		users := object.GetPaginationUsers(owner, paginator.Offset(), limit, field, value, sortField, sortOrder)
 		users = object.GetMaskedUsers(users)
-		c.ResponseOk(users, paginator.Nums())
+		c.ResponseOk(c.OrganizationFilter(users), paginator.Nums())
 	}
 }
 
